@@ -1,5 +1,5 @@
 ## What
-Blazor  
+Blazor wasm  
 GraphQL  
 EF Core  
 ...
