@@ -7,6 +7,12 @@
       "commands": [
         "dotnet-graphql"
       ]
+    },
+    "dotnet-ef": {
+      "version": "6.0.3",
+      "commands": [
+        "dotnet-ef"
+      ]
     }
   }
 }
