@@ -2,3 +2,6 @@
 .vscode
 Bookriofy/obj/*
 Bookriofy/bin/*
+
+Api/bin/*
+Api/obj/*
