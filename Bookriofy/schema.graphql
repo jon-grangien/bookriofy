@@ -1,0 +1,22 @@
+﻿schema {
+  query: Query
+}
+
+type Query {
+  hello: String!
+  books: [Book!]!
+  bookById(id: Int!): Book!
+}
+
+type Book {
+  id: Int!
+  title: String!
+  description: String
+  author: Author!
+}
+
+type Author {
+  id: Int!
+  name: String!
+  bio: String
+}
