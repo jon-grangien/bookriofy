@@ -12,6 +12,10 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite("Data Source=bookriofystore.db"));
 
+builder.Services
+	.AddBookriofyGraphqlClient()
+	.ConfigureHttpClient(client => client.BaseAddress = new Uri("http://localhost:5001/graphql"));
+
 // builder.Services.AddGraphQLServer();
 
 await builder.Build().RunAsync();
