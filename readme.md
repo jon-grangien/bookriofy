@@ -12,6 +12,12 @@ dotnet --version
 
 ## How
 ```bash
-cd Bookriofy
-dotnet run watch
+dotnet watch run --project ./Api/Api.csproj
 ```
+
+```bash
+dotnet watch run --project ./Bookriofy/Bookriofy.csproj
+```
+
+Graphql server: http://localhost:5001/graphql  
+Blazor app: http://localhost:5000  
