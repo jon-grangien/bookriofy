@@ -1,0 +1,8 @@
+mutation RenameBook($bookId: ID!, $title: String!) {
+  renameBook(input: { bookId: $sessionId, title: $title }) {
+    book {
+      id
+	  title
+    }
+  }
+}

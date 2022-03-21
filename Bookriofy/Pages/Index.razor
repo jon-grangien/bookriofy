@@ -1,27 +1,43 @@
 ﻿@page "/"
-@inject BookriofyGraphqlClient BookriofyGraphqlClient;
+@* @inject BookriofyGraphqlClient BookriofyGraphqlClient; *@
+@implements IDisposable
+@using Bookriofy.Data;
 
-<PageTitle>Index</PageTitle>
-
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-<SurveyPrompt Title="How is Blazor working for you?" />
+<PageTitle>Books</PageTitle>
 
 <ul>
-	@foreach (string title in bookTitles)
-	{
-		<li>@title</li>
-	}
+	@* @foreach (IBookShort book in books) *@
+	@* { *@
+	@* <li><button @onclick="() => OnClickSession(session)"><span class="oi oi-pencil mr-2" *@
+	@* aria-hidden="true"></span></button> @session.Title</li> *@
+	@* } *@
 </ul>
 
 @code {
-	private string[] bookTitles = Array.Empty<string>();
+	@* private IBookShort[] books = Array.Empty<IBookShort>(); *@
+	private IDisposable storeSession;
 
-	protected override async Task OnInitializedAsync()
+	protected override void OnInitialized()
 	{
-		var result = await BookriofyGraphqlClient.GetBooks.ExecuteAsync();
-		bookTitles = result.Data.Books.Select(b => b.Title).ToArray();
+
+		/*
+		storeSession = BookriofyGraphqlClient
+		.GetBooks
+		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
+		.Where(t => !t.Errors.Any())
+		.Subscribe(result =>
+		{
+		if (books != null)
+		{
+		books = result;
+		}
+		StateHasChanged();
+		});
+		*/
+	}
+
+	public void Dispose()
+	{
+		storeSession?.Dispose();
 	}
 }
