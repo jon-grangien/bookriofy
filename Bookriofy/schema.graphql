@@ -1,9 +1,13 @@
 ﻿schema {
   query: Query
+  mutation: Mutation
+}
+
+type Mutation {
+  renameBook(id: Int! title: String!): Book!
 }
 
 type Query {
-  hello: String!
   books: [Book!]!
   bookById(id: Int!): Book!
 }

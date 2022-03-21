@@ -2,6 +2,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
 	.AddGraphQLServer()
+	.AddMutationType<Mutation>()
 	.AddQueryType<Query>();
 
 builder.Services.AddCors(option =>

@@ -1,0 +1,6 @@
+mutation RenameBook($bookId: Int!, $title: String!) {
+  renameBook(id: $bookId, title: $title) {
+      id
+	  title
+  }
+} 

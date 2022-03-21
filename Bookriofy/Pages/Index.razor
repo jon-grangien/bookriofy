@@ -1,5 +1,6 @@
 ﻿@page "/"
 @inject BookriofyGraphqlClient BookriofyGraphqlClient;
+@implements IDisposable
 
 <PageTitle>Index</PageTitle>
 
@@ -10,18 +11,62 @@ Welcome to your new app.
 <SurveyPrompt Title="How is Blazor working for you?" />
 
 <ul>
-	@foreach (string title in bookTitles)
+	@foreach (var book in books)
 	{
-		<li>@title</li>
+		<li><button @onclick="() => OnClickBook(book)"><span class="oi oi-pencil mr-2" aria-hidden="true"></span></button>
+			@book.Title</li>
 	}
 </ul>
 
-@code {
-	private string[] bookTitles = Array.Empty<string>();
+@if (selectedBook is not null)
+{
+	<br />
+	<p>Edit Book Title:</p>
+	<input @bind-value="@title" />
+	<button @onclick="OnSaveTitle">Save</button>
+}
 
-	protected override async Task OnInitializedAsync()
+
+@code {
+	private IReadOnlyList<IBookSimple> books = Array.Empty<IBookSimple>();
+	private IBookSimple selectedBook;
+	private IDisposable storeSession;
+	private string title;
+
+	protected override void OnInitialized()
 	{
-		var result = await BookriofyGraphqlClient.GetBooks.ExecuteAsync();
-		bookTitles = result.Data.Books.Select(b => b.Title).ToArray();
+		storeSession = BookriofyGraphqlClient
+		.GetBooks
+		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
+		.Where(t => !t.Errors.Any())
+		.Select(t => t?.Data?.Books)
+		.Subscribe(result =>
+		{
+			if (result != null)
+			{
+				books = result;
+			}
+			StateHasChanged();
+		});
+	}
+
+	private void OnClickBook(IBookSimple book)
+	{
+		selectedBook = book;
+		title = book.Title;
+		StateHasChanged();
+	}
+
+	private async Task OnSaveTitle()
+	{
+		await BookriofyGraphqlClient.RenameBook.ExecuteAsync(selectedBook.Id, title);
+		selectedBook = null;
+		title = null;
+		StateHasChanged();
+	}
+
+	public void Dispose()
+	{
+		storeSession?.Dispose();
 	}
 }

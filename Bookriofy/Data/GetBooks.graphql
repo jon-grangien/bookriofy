@@ -1,5 +1,10 @@
 query GetBooks {
 	books {
-		title
+		...BookSimple
 	}
+}
+
+fragment BookSimple on Book {
+	id
+	title
 }
