@@ -59,7 +59,7 @@ Welcome to your new app.
 
 	private async Task OnSaveTitle()
 	{
-		await BookriofyGraphqlClient.RenameBook.ExecuteAsync(selectedBook.Id, title);
+		await BookriofyGraphqlClient.RenameBook.ExecuteAsync(selectedBook.Id.ToString(), title);
 		selectedBook = null;
 		title = null;
 		StateHasChanged();

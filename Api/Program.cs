@@ -2,6 +2,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
 	.AddGraphQLServer()
+	.AddMutationConventions(applyToAllMutations: true)
 	.AddMutationType<Mutation>()
 	.AddQueryType<Query>();
 

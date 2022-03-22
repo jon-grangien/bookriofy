@@ -3,7 +3,7 @@ using Models;
 
 public class Mutation
 {
-	public Book RenameBook(int id, string title)
+	public Book RenameBook([ID] int id, string title)
 	{
 		var books = Seed.SeedData();
 		var book = books.FirstOrDefault(b => b.Id == id);
