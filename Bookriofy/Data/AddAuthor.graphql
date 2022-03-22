@@ -1,0 +1,8 @@
+mutation AddAuthor($name: String!, $bio: String!) {
+  addAuthor(input: {name: $name, bio: $bio}) {
+    author {
+		name
+		bio
+	}
+  }
+} 

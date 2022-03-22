@@ -1,7 +1,13 @@
 var builder = WebApplication.CreateBuilder(args);
 
+var isDevelopment = builder.Environment.IsDevelopment();
+
+builder.Services.AddDbContext<BookriofyDbContext>(options => { });
+
 builder.Services
 	.AddGraphQLServer()
+	.ModifyRequestOptions(opt => opt.IncludeExceptionDetails = isDevelopment)
+	.RegisterDbContext<BookriofyDbContext>()
 	.AddMutationConventions(applyToAllMutations: true)
 	.AddMutationType<Mutation>()
 	.AddQueryType<Query>();

@@ -1,0 +1,10 @@
+query GetAuthors {
+	authors {
+		...AuthorSimple
+	}
+}
+
+fragment AuthorSimple on Author {
+	name,
+	bio
+}

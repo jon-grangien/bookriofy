@@ -2,7 +2,7 @@ using Models;
 
 namespace Data
 {
-	public class Seed
+	/*public class Seed
 	{
 		public static List<Book> SeedData()
 		{
@@ -28,5 +28,5 @@ namespace Data
 
 			return books;
 		}
-	}
+	}*/
 }

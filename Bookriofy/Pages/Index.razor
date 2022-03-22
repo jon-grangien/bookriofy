@@ -10,11 +10,20 @@ Welcome to your new app.
 
 <SurveyPrompt Title="How is Blazor working for you?" />
 
+<p>Books</p>
 <ul>
 	@foreach (var book in books)
 	{
 		<li><button @onclick="() => OnClickBook(book)"><span class="oi oi-pencil mr-2" aria-hidden="true"></span></button>
 			@book.Title</li>
+	}
+</ul>
+
+<p>Authors</p>
+<ul>
+	@foreach (var author in authors)
+	{
+		<li>@author.Name, @author.Bio</li>
 	}
 </ul>
 
@@ -26,16 +35,26 @@ Welcome to your new app.
 	<button @onclick="OnSaveTitle">Save</button>
 }
 
+<br />
+<p>Add author</p>
+<input @bind-value="@authorName" />
+<input @bind-value="@authorBio" />
+<button @onclick="OnAddAuthor">Add</button>
 
 @code {
 	private IReadOnlyList<IBookSimple> books = Array.Empty<IBookSimple>();
+	private IReadOnlyList<IAuthorSimple> authors = Array.Empty<IAuthorSimple>();
 	private IBookSimple selectedBook;
-	private IDisposable storeSession;
+	private IDisposable storeBooks;
+	private IDisposable storeAuthors;
 	private string title;
+
+	private string authorName;
+	private string authorBio;
 
 	protected override void OnInitialized()
 	{
-		storeSession = BookriofyGraphqlClient
+		storeBooks = BookriofyGraphqlClient
 		.GetBooks
 		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
 		.Where(t => !t.Errors.Any())
@@ -45,6 +64,20 @@ Welcome to your new app.
 			if (result != null)
 			{
 				books = result;
+			}
+			StateHasChanged();
+		});
+
+		storeAuthors = BookriofyGraphqlClient
+		.GetAuthors
+		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
+		.Where(t => !t.Errors.Any())
+		.Select(t => t?.Data?.Authors)
+		.Subscribe(result =>
+		{
+			if (result != null)
+			{
+				authors = result;
 			}
 			StateHasChanged();
 		});
@@ -65,8 +98,15 @@ Welcome to your new app.
 		StateHasChanged();
 	}
 
+	private async Task OnAddAuthor()
+	{
+		await BookriofyGraphqlClient.AddAuthor.ExecuteAsync(authorName, authorBio);
+		StateHasChanged();
+	}
+
 	public void Dispose()
 	{
-		storeSession?.Dispose();
+		storeBooks?.Dispose();
+		storeAuthors?.Dispose();
 	}
 }
