@@ -37,9 +37,16 @@ Welcome to your new app.
 
 <br />
 <p>Add author</p>
-<input @bind-value="@authorName" />
-<input @bind-value="@authorBio" />
+<input @bind-value="@newAuthorName" />
+<input @bind-value="@newAuthorBio" />
 <button @onclick="OnAddAuthor">Add</button>
+
+<br />
+<p>Add book</p>
+<input @bind-value="@newBookTitle" />
+<input @bind-value="@newBookDesc" />
+<input @bind-value="@newBookAuthorId" />
+<button @onclick="OnAddBook">Add</button>
 
 @code {
 	private IReadOnlyList<IBookSimple> books = Array.Empty<IBookSimple>();
@@ -49,8 +56,12 @@ Welcome to your new app.
 	private IDisposable storeAuthors;
 	private string title;
 
-	private string authorName;
-	private string authorBio;
+	private string newAuthorName;
+	private string newAuthorBio;
+	private string newBookTitle;
+	private string newBookDesc;
+	private int? newBookAuthorId;
+
 
 	protected override void OnInitialized()
 	{
@@ -100,7 +111,23 @@ Welcome to your new app.
 
 	private async Task OnAddAuthor()
 	{
-		await BookriofyGraphqlClient.AddAuthor.ExecuteAsync(authorName, authorBio);
+		await BookriofyGraphqlClient.AddAuthor.ExecuteAsync(newAuthorName, newAuthorBio);
+		newAuthorName = null;
+		newAuthorBio = null;
+		StateHasChanged();
+	}
+
+	private async Task OnAddBook()
+	{
+		if (newBookTitle is null || newBookDesc is null || newBookAuthorId is null)
+		{
+			return;
+		}
+
+		await BookriofyGraphqlClient.AddBook.ExecuteAsync(newBookTitle, newBookDesc, newBookAuthorId.ToString());
+		newBookTitle = null;
+		newBookDesc = null;
+		newBookAuthorId = null;
 		StateHasChanged();
 	}
 

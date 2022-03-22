@@ -1,0 +1,7 @@
+mutation AddBook($title: String!, $description: String, $authorId: ID!) {
+  addBook(input: {title: $title, description: $description, authorId: $authorId}) {
+    book {
+		title
+	}
+  }
+} 
