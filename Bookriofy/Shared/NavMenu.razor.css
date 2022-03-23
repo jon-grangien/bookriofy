@@ -3,12 +3,17 @@
 }
 
 .top-row {
-    height: 3.5rem;
+    height: 7rem;
     background-color: rgba(0,0,0,0.4);
+    width: 100%;
 }
 
 .navbar-brand {
     font-size: 1.1rem;
+    width: 100%;
+    display: flex;
+    align-content: center;
+    justify-content: center;
 }
 
 .oi {
