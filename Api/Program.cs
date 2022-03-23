@@ -5,14 +5,15 @@ var isDevelopment = builder.Environment.IsDevelopment();
 builder.Services.AddDbContext<BookriofyDbContext>(options => { });
 
 builder.Services
+	.AddMemoryCache()
 	.AddGraphQLServer()
 	.ModifyRequestOptions(opt => opt.IncludeExceptionDetails = isDevelopment)
 	.RegisterDbContext<BookriofyDbContext>()
 	.AddMutationConventions(applyToAllMutations: true)
 	.AddMutationType<Mutation>()
 	.AddQueryType<Query>()
-	.UsePersistedQueryPipeline()
-	.AddReadOnlyFileSystemQueryStorage("./persisted_queries");
+	.UseAutomaticPersistedQueryPipeline()
+	.AddInMemoryQueryStorage();
 
 builder.Services.AddCors(option =>
 {
