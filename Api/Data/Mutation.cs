@@ -36,4 +36,40 @@ public class Mutation
 
 		return author;
 	}
+
+	public async Task<Author> RemoveAuthor([ID] int id, BookriofyDbContext dbContext, [Service] ITopicEventSender sender)
+	{
+		var author = dbContext.Authors.FirstOrDefault(a => a.Id == id);
+		if (author != null)
+		{
+			try
+			{
+				var books = dbContext.Books.Where(b => b.AuthorId == id).ToArray();
+				if (books != null)
+				{
+					dbContext.RemoveRange(books);
+					foreach (var book in books)
+					{
+						await sender.SendAsync(nameof(Subscription.BookRemoved), book);
+					}
+				}
+
+				dbContext.Authors.Remove(author);
+				await sender.SendAsync(nameof(Subscription.AuthorRemoved), author);
+
+			}
+			catch (Exception ex)
+			{
+				throw new Exception("Could not remove author or books " + ex.Message);
+			}
+			finally
+			{
+				await dbContext.SaveChangesAsync();
+			}
+
+			return author;
+		}
+
+		return null;
+	}
 }

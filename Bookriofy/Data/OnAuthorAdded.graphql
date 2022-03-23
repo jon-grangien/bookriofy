@@ -1,10 +1,7 @@
 subscription OnAuthorAdded {
   authorAdded {
-    ...AuthorAddedSimple
+    id
+    name
+    bio
   }
-}
-
-fragment AuthorAddedSimple on Author {
-	name,
-	bio
 }

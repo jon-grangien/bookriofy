@@ -1,0 +1,7 @@
+mutation RemoveAuthor($authorId: ID!) {
+  removeAuthor(input: {id: $authorId}) {
+    author {
+      id
+    }
+  }
+} 

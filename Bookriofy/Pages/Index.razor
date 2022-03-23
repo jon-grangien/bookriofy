@@ -22,7 +22,9 @@ Welcome to your new app.
 <ul>
 	@foreach (var author in authors)
 	{
-		<li>@author.Name, @author.Bio</li>
+		<li><button @onclick="() => OnClickDeleteAuthor(author)"><span class="oi oi-trash mr-2"
+				aria-hidden="true"></span></button>
+			@author.Name, @author.Bio</li>
 	}
 </ul>
 
@@ -48,12 +50,14 @@ Welcome to your new app.
 <button @onclick="OnAddBook">Add</button>
 
 @code {
-	private IReadOnlyList<IBookSimple> books = Array.Empty<IBookSimple>();
+	private List<ViewBook> books = new List<ViewBook>();
 	private List<ViewAuthor> authors = new List<ViewAuthor>();
-	private IBookSimple selectedBook;
+	private ViewBook selectedBook;
 	private IDisposable storeBooks;
 	private IDisposable storeAuthors;
 	private IDisposable storeAuthorAdded;
+	private IDisposable storeAuthorRemoved;
+	private IDisposable storeBooksRemoved;
 	private string title;
 
 	private string newAuthorName;
@@ -68,6 +72,8 @@ Welcome to your new app.
 		FetchBooks();
 		FetchAuthors();
 		SubscribeToAddedAuthors();
+		SubscribeToRemovedAuthor();
+		SubscribeToRemovedBook();
 	}
 
 	private void FetchBooks()
@@ -81,7 +87,17 @@ Welcome to your new app.
 		{
 			if (result != null)
 			{
-				books = result;
+				books = new List<ViewBook>();
+				foreach (var r in result)
+				{
+					books.Add(new ViewBook
+					{
+						Id = r.Id,
+						Title = r.Title,
+						Description = r?.Description,
+						AuthorId = r.Author.Id
+					});
+				}
 			}
 			StateHasChanged();
 		});
@@ -102,10 +118,13 @@ Welcome to your new app.
 				{
 					authors.Add(new ViewAuthor
 					{
+						Id = result.Id,
 						Name = result.Name,
 						Bio = result?.Bio
 					});
 				}
+
+				Console.WriteLine("Authors ids: " + authors.Select(a => a.Id).ToString());
 			}
 			StateHasChanged();
 		});
@@ -122,6 +141,7 @@ Welcome to your new app.
 			{
 				authors.Add(new ViewAuthor
 				{
+					Id = result.Data.AuthorAdded.Id,
 					Name = result.Data.AuthorAdded.Name,
 					Bio = result.Data.AuthorAdded.Bio
 				});
@@ -130,7 +150,37 @@ Welcome to your new app.
 		});
 	}
 
-	private void OnClickBook(IBookSimple book)
+	private void SubscribeToRemovedAuthor()
+	{
+		storeAuthorRemoved = BookriofyGraphqlClient
+		.OnAuthorRemoved
+		.Watch()
+		.Subscribe(result =>
+		{
+			if (result?.Data != null)
+			{
+				authors = authors.Where(a => a.Id != result.Data.AuthorRemoved.Id).ToList();
+				StateHasChanged();
+			}
+		});
+	}
+
+	private void SubscribeToRemovedBook()
+	{
+		storeBooksRemoved = BookriofyGraphqlClient
+		.OnBookRemoved
+		.Watch()
+		.Subscribe(result =>
+		{
+			if (result?.Data != null)
+			{
+				books = books.Where(b => b.Id != result?.Data.BookRemoved.Id).ToList();
+				StateHasChanged();
+			}
+		});
+	}
+
+	private void OnClickBook(ViewBook book)
 	{
 		selectedBook = book;
 		title = book.Title;
@@ -153,6 +203,11 @@ Welcome to your new app.
 		StateHasChanged();
 	}
 
+	private async void OnClickDeleteAuthor(ViewAuthor author)
+	{
+		await BookriofyGraphqlClient.RemoveAuthor.ExecuteAsync(author.Id.ToString());
+	}
+
 	private async Task OnAddBook()
 	{
 		if (newBookTitle is null || newBookDesc is null || newBookAuthorId is null)
@@ -172,5 +227,7 @@ Welcome to your new app.
 		storeBooks?.Dispose();
 		storeAuthors?.Dispose();
 		storeAuthorAdded?.Dispose();
+		storeAuthorRemoved?.Dispose();
+		storeBooksRemoved?.Dispose();
 	}
 }

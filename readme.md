@@ -12,12 +12,31 @@ dotnet --version
 
 ## How
 ```bash
-dotnet watch run --project ./Api/Api.csproj
+cd Api
+dotnet watch run 
 ```
 
 ```bash
-dotnet watch run --project ./Bookriofy/Bookriofy.csproj
+cd Bookriofy
+dotnet watch run 
 ```
 
 Graphql server: http://localhost:5001/graphql  
 Blazor app: http://localhost:5000  
+
+### Commands
+Client: Regenerate graphql schema
+```bash
+dotnet graphql update
+```
+
+Server: New migration
+```bash
+dotnet ef migrations add MigrationName
+dotnet ef database update
+```
+
+## Troubleshooting
+<b>VS Code doesn't recognize GraphQl context at all and shows red everywhere </b>  
+Make sure schema is regenerated and any new query/mutation created in client has corresponding resolver in Api.  
+If true, restart VS Code  

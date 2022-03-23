@@ -6,5 +6,11 @@ namespace Data
 	{
 		[Subscribe]
 		public Author AuthorAdded([EventMessage] Author author) => author;
+
+		[Subscribe]
+		public Author AuthorRemoved([EventMessage] Author author) => author;
+
+		[Subscribe]
+		public Book BookRemoved([EventMessage] Book book) => book;
 	}
 }

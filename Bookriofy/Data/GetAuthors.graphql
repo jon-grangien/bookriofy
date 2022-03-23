@@ -1,10 +1,7 @@
 query GetAuthors {
 	authors {
-		...AuthorSimple
+		id
+		name
+		bio
 	}
-}
-
-fragment AuthorSimple on Author {
-	name,
-	bio
 }
