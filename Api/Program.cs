@@ -10,7 +10,9 @@ builder.Services
 	.RegisterDbContext<BookriofyDbContext>()
 	.AddMutationConventions(applyToAllMutations: true)
 	.AddMutationType<Mutation>()
-	.AddQueryType<Query>();
+	.AddQueryType<Query>()
+	.UsePersistedQueryPipeline()
+	.AddReadOnlyFileSystemQueryStorage("./persisted_queries");
 
 builder.Services.AddCors(option =>
 {

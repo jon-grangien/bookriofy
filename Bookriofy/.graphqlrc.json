@@ -21,7 +21,14 @@
       },
       "transportProfiles": [
         {
-          "default": "Http",
+          "name": "Default",
+          "default": "HTTP",
+          "subscription": "WebSocket"
+        },
+        {
+          "name": "WebSocket",
+          "default": "HTTP",
+          "mutation": "WebSocket",
           "subscription": "WebSocket"
         }
       ]

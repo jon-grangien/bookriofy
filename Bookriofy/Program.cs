@@ -9,11 +9,11 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-// builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite("Data Source=bookriofystore.db"));
-
 builder.Services
 	.AddBookriofyGraphqlClient()
-	.ConfigureHttpClient(client => client.BaseAddress = new Uri("http://localhost:5001/graphql"));
+	.ConfigureHttpClient(client => client.BaseAddress = new Uri("http://localhost:5001/graphql"))
+	.ConfigureWebSocketClient(client => client.Uri = new Uri("ws://localhost:5001/graphql"));
+
 
 // builder.Services.AddGraphQLServer();
 

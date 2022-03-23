@@ -65,6 +65,12 @@ Welcome to your new app.
 
 	protected override void OnInitialized()
 	{
+		FetchBooks();
+		FetchAuthors();
+	}
+
+	private void FetchBooks()
+	{
 		storeBooks = BookriofyGraphqlClient
 		.GetBooks
 		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
@@ -78,7 +84,10 @@ Welcome to your new app.
 			}
 			StateHasChanged();
 		});
+	}
 
+	private void FetchAuthors()
+	{
 		storeAuthors = BookriofyGraphqlClient
 		.GetAuthors
 		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
