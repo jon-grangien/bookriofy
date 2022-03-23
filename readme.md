@@ -13,6 +13,12 @@ dotnet --version
 ## How
 ```bash
 cd Api
+
+# init
+dotnet build
+dotnet ef database update
+
+# run
 dotnet watch run 
 ```
 
