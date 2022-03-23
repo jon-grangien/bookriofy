@@ -1,4 +1,6 @@
+using HotChocolate.Subscriptions;
 using Models;
+using Data;
 
 public class Mutation
 {
@@ -24,11 +26,14 @@ public class Mutation
 		return book;
 	}
 
-	public Author AddAuthor(string name, string bio, BookriofyDbContext dbContext)
+	public async Task<Author> AddAuthor(string name, string bio, BookriofyDbContext dbContext, [Service] ITopicEventSender sender)
 	{
 		var author = new Author { Name = name, Bio = bio };
 		dbContext.Authors.Add(author);
-		dbContext.SaveChanges();
+		await dbContext.SaveChangesAsync();
+
+		await sender.SendAsync(nameof(Subscription.AuthorAdded), author);
+
 		return author;
 	}
 }

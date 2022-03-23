@@ -1,0 +1,10 @@
+subscription OnAuthorAdded {
+  authorAdded {
+    ...AuthorAddedSimple
+  }
+}
+
+fragment AuthorAddedSimple on Author {
+	name,
+	bio
+}

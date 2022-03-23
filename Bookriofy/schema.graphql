@@ -1,6 +1,7 @@
 ﻿schema {
   query: Query
   mutation: Mutation
+  subscription: Subscription
 }
 
 type Mutation {
@@ -13,6 +14,10 @@ type Query {
   books: [Book!]!
   bookById(id: ID!): Book!
   authors: [Author!]!
+}
+
+type Subscription {
+  authorAdded: Author!
 }
 
 type Author {

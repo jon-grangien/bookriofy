@@ -1,3 +1,5 @@
+using Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var isDevelopment = builder.Environment.IsDevelopment();
@@ -12,6 +14,8 @@ builder.Services
 	.AddMutationConventions(applyToAllMutations: true)
 	.AddMutationType<Mutation>()
 	.AddQueryType<Query>()
+	.AddSubscriptionType<Subscription>()
+	.AddInMemorySubscriptions()
 	.UseAutomaticPersistedQueryPipeline()
 	.AddInMemoryQueryStorage();
 
@@ -24,6 +28,7 @@ builder.Services.AddCors(option =>
 
 var app = builder.Build();
 
+app.UseWebSockets();
 app.UseCors("allowedOrigin");
 app.MapGraphQL();
 

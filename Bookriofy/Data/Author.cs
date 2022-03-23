@@ -13,4 +13,10 @@ namespace Bookriofy.Data
 		[StringLength(4000)]
 		public string Bio { get; set; }
 	}
+
+	public class ViewAuthor
+	{
+		public string Name { get; set; }
+		public string? Bio { get; set; }
+	}
 }

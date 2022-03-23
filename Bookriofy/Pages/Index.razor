@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject BookriofyGraphqlClient BookriofyGraphqlClient;
 @implements IDisposable
+@using Bookriofy.Data
 
 <PageTitle>Index</PageTitle>
 
@@ -48,10 +49,11 @@ Welcome to your new app.
 
 @code {
 	private IReadOnlyList<IBookSimple> books = Array.Empty<IBookSimple>();
-	private IReadOnlyList<IAuthorSimple> authors = Array.Empty<IAuthorSimple>();
+	private List<ViewAuthor> authors = new List<ViewAuthor>();
 	private IBookSimple selectedBook;
 	private IDisposable storeBooks;
 	private IDisposable storeAuthors;
+	private IDisposable storeAuthorAdded;
 	private string title;
 
 	private string newAuthorName;
@@ -65,6 +67,7 @@ Welcome to your new app.
 	{
 		FetchBooks();
 		FetchAuthors();
+		SubscribeToAddedAuthors();
 	}
 
 	private void FetchBooks()
@@ -91,13 +94,39 @@ Welcome to your new app.
 		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
 		.Where(t => !t.Errors.Any())
 		.Select(t => t?.Data?.Authors)
-		.Subscribe(result =>
+		.Subscribe(results =>
 		{
-			if (result != null)
+			if (results != null)
 			{
-				authors = result;
+				foreach (var result in results)
+				{
+					authors.Add(new ViewAuthor
+					{
+						Name = result.Name,
+						Bio = result?.Bio
+					});
+				}
 			}
 			StateHasChanged();
+		});
+	}
+
+	private void SubscribeToAddedAuthors()
+	{
+		storeAuthorAdded = BookriofyGraphqlClient
+		.OnAuthorAdded
+		.Watch()
+		.Subscribe(result =>
+		{
+			if (result?.Data != null)
+			{
+				authors.Add(new ViewAuthor
+				{
+					Name = result.Data.AuthorAdded.Name,
+					Bio = result.Data.AuthorAdded.Bio
+				});
+				StateHasChanged();
+			}
 		});
 	}
 
@@ -142,5 +171,6 @@ Welcome to your new app.
 	{
 		storeBooks?.Dispose();
 		storeAuthors?.Dispose();
+		storeAuthorAdded?.Dispose();
 	}
 }
