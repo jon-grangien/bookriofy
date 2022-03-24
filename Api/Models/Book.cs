@@ -17,7 +17,7 @@ namespace Models
 
 		public string? Isbn13 { get; set; }
 
-		public int? PublishedYeas { get; set; }
+		public int? PublishedYear { get; set; }
 
 		public Author Author { get; set; }
 
