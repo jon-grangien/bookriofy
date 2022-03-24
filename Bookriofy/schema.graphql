@@ -33,6 +33,10 @@ type Book {
   id: Int!
   title: String!
   description: String
+  imageLink: String
+  isbn10: String
+  isbn13: String
+  publishedYear: Int
   author: Author!
 }
 

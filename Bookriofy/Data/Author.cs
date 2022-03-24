@@ -6,13 +6,6 @@ namespace Bookriofy.Data
 
 		public string Name { get; set; }
 
-		public string Bio { get; set; }
-	}
-
-	public class ViewAuthor
-	{
-		public int Id { get; set; }
-		public string Name { get; set; }
 		public string? Bio { get; set; }
 	}
 }

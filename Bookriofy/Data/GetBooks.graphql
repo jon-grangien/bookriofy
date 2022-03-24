@@ -3,6 +3,8 @@ query GetBooks {
 		id
 		title
 		description
+		imageLink
+		publishedYear
 		author {
 			id
 		}
