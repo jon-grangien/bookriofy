@@ -11,6 +11,14 @@ namespace Models
 
 		public string? Description { get; set; }
 
+		public string? ImageLink { get; set; }
+
+		public string? Isbn10 { get; set; }
+
+		public string? Isbn13 { get; set; }
+
+		public int? PublishedYeas { get; set; }
+
 		public Author Author { get; set; }
 
 		[GraphQLIgnore]
