@@ -1,0 +1,119 @@
+@inject BookriofyGraphqlClient BookriofyGraphqlClient;
+@implements IDisposable
+@using AutoMapper
+@using Bookriofy.Data
+
+<p>Books</p>
+@if (books.Count == 0)
+{
+	<p>Loading...</p>
+}
+else
+{
+	<ul>
+		@foreach (var book in books)
+		{
+			<li><button @onclick="() => OnClickBook(book)"><span class="oi oi-pencil mr-2" aria-hidden="true"></span></button>
+				@book.Title</li>
+		}
+	</ul>
+}
+
+<br />
+<p>Add book</p>
+<input @bind-value="@newBookTitle" />
+<input @bind-value="@newBookDesc" />
+<input @bind-value="@newBookAuthorId" />
+<button @onclick="OnAddBook">Add</button>
+
+@code {
+	private List<Book> books = new List<Book>();
+
+	private Book selectedBook;
+	private IDisposable storeBooks;
+	private IDisposable storeBooksRemoved;
+	private string title;
+	private string newBookTitle;
+	private string newBookDesc;
+	private int? newBookAuthorId;
+
+	[Inject]
+	protected IMapper Mapper { get; set; }
+
+	protected override void OnInitialized()
+	{
+		FetchBooks();
+		SubscribeToRemovedBook();
+	}
+
+	private void FetchBooks()
+	{
+		storeBooks = BookriofyGraphqlClient
+		.GetBooks
+		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
+		.Where(t => !t.Errors.Any())
+		.Select(t => t?.Data?.Books)
+		.Subscribe(result =>
+		{
+			if (result != null)
+			{
+				books = new List<Book>();
+				foreach (var r in result)
+				{
+					books.Add(Mapper.Map<Book>(r));
+				}
+			}
+			StateHasChanged();
+		});
+	}
+
+	private void SubscribeToRemovedBook()
+	{
+		storeBooksRemoved = BookriofyGraphqlClient
+		.OnBookRemoved
+		.Watch()
+		.Subscribe(result =>
+		{
+			if (result?.Data != null)
+			{
+				books = books.Where(b => b.Id != result?.Data.BookRemoved.Id).ToList();
+				StateHasChanged();
+			}
+		});
+	}
+
+	private void OnClickBook(Book book)
+	{
+		selectedBook = book;
+		title = book.Title;
+		StateHasChanged();
+	}
+
+	private async Task OnSaveTitle()
+	{
+		await BookriofyGraphqlClient.RenameBook.ExecuteAsync(selectedBook.Id.ToString(), title);
+		selectedBook = null;
+		title = null;
+		StateHasChanged();
+	}
+
+	private async Task OnAddBook()
+	{
+		if (newBookTitle is null || newBookDesc is null || newBookAuthorId is null)
+		{
+			return;
+		}
+
+		await BookriofyGraphqlClient.AddBook.ExecuteAsync(newBookTitle, newBookDesc, newBookAuthorId.ToString());
+		newBookTitle = null;
+		newBookDesc = null;
+		newBookAuthorId = null;
+		StateHasChanged();
+	}
+
+	public void Dispose()
+	{
+		storeBooks?.Dispose();
+		storeBooksRemoved?.Dispose();
+	}
+}

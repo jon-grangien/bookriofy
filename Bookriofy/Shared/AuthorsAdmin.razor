@@ -1,0 +1,117 @@
+@inject BookriofyGraphqlClient BookriofyGraphqlClient;
+@implements IDisposable
+@using AutoMapper
+@using Bookriofy.Data
+
+<p>Authors</p>
+@if (authors.Count == 0)
+{
+	<p>Loading...</p>
+}
+else
+{
+	<ul>
+		@foreach (var author in authors)
+		{
+			<li><button @onclick="() => OnClickDeleteAuthor(author)"><span class="oi oi-trash mr-2"
+				aria-hidden="true"></span></button>
+				@author.Name, @author.Bio</li>
+		}
+	</ul>
+}
+
+<br />
+<p>Add author</p>
+<input @bind-value="@newAuthorName" />
+<input @bind-value="@newAuthorBio" />
+<button @onclick="OnAddAuthor">Add</button>
+
+@code {
+
+	private List<Author> authors = new List<Author>();
+	private IDisposable storeAuthors;
+	private IDisposable storeAuthorAdded;
+	private IDisposable storeAuthorRemoved;
+	private string newAuthorName;
+	private string newAuthorBio;
+
+	[Inject]
+	protected IMapper Mapper { get; set; }
+
+	protected override void OnInitialized()
+	{
+		FetchAuthors();
+		SubscribeToAddedAuthors();
+		SubscribeToRemovedAuthor();
+	}
+
+	private void FetchAuthors()
+	{
+		storeAuthors = BookriofyGraphqlClient
+		.GetAuthors
+		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
+		.Where(t => !t.Errors.Any())
+		.Select(t => t?.Data?.Authors)
+		.Subscribe(results =>
+		{
+			if (results != null)
+			{
+				foreach (var result in results)
+				{
+					authors.Add(Mapper.Map<Author>(result));
+				}
+			}
+			StateHasChanged();
+		});
+	}
+
+	private void SubscribeToAddedAuthors()
+	{
+		storeAuthorAdded = BookriofyGraphqlClient
+		.OnAuthorAdded
+		.Watch()
+		.Subscribe(result =>
+		{
+			if (result?.Data != null)
+			{
+				authors.Add(Mapper.Map<Author>(result.Data.AuthorAdded));
+				StateHasChanged();
+			}
+		});
+	}
+
+	private void SubscribeToRemovedAuthor()
+	{
+		storeAuthorRemoved = BookriofyGraphqlClient
+		.OnAuthorRemoved
+		.Watch()
+		.Subscribe(result =>
+		{
+			if (result?.Data != null)
+			{
+				authors = authors.Where(a => a.Id != result.Data.AuthorRemoved.Id).ToList();
+				StateHasChanged();
+			}
+		});
+	}
+
+	private async Task OnAddAuthor()
+	{
+		await BookriofyGraphqlClient.AddAuthor.ExecuteAsync(newAuthorName, newAuthorBio);
+		newAuthorName = null;
+		newAuthorBio = null;
+		StateHasChanged();
+	}
+
+	private async void OnClickDeleteAuthor(Author author)
+	{
+		await BookriofyGraphqlClient.RemoveAuthor.ExecuteAsync(author.Id.ToString());
+	}
+
+	public void Dispose()
+	{
+		storeAuthors?.Dispose();
+		storeAuthorAdded?.Dispose();
+		storeAuthorRemoved?.Dispose();
+	}
+}
