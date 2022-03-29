@@ -13,7 +13,8 @@ else
 	<ul>
 		@foreach (var book in books)
 		{
-			<li><button @onclick="() => OnClickBook(book)"><span class="oi oi-pencil mr-2" aria-hidden="true"></span></button>
+			<li><button @onclick="() => OnClickBook(book)"><span class="oi oi-pencil mr-2"
+				aria-hidden="true">Edit</span></button>
 				@book.Title</li>
 		}
 	</ul>

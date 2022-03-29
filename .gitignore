@@ -2,6 +2,7 @@
 .vscode
 Bookriofy/obj/*
 Bookriofy/bin/*
+Bookriofy/node_modules
 
 Api/bin/*
 Api/obj/*

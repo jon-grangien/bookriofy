@@ -13,8 +13,9 @@ else
 	<ul>
 		@foreach (var author in authors)
 		{
-			<li><button @onclick="() => OnClickDeleteAuthor(author)"><span class="oi oi-trash mr-2"
-				aria-hidden="true"></span></button>
+			<li class="my-2"><button @onclick="() => OnClickDeleteAuthor(author)"
+			class="border-solid border-2 border-indigo-600 px-4"><span class="mr-4"
+				aria-hidden="true">Delete</span></button>
 				@author.Name, @author.Bio</li>
 		}
 	</ul>

@@ -1,0 +1,16 @@
+{
+  "name": "bookriofy",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tailwind": "npx tailwindcss -i ./Styles/app.css -o ./wwwroot/app.css --watch",
+    "tailwind-build-prod": "npx tailwindcss -i ./Styles/app.css -o ./wwwroot/app.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "tailwindcss": "^3.0.23"
+  }
+}

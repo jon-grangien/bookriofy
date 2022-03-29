@@ -24,7 +24,11 @@ dotnet watch run
 
 ```bash
 cd Bookriofy
-dotnet watch run 
+npm install
+npm run tailwind # tailwind watch build process
+
+# separate process
+dotnet watch --project . # https://github.com/dotnet/aspnetcore/issues/38036#issuecomment-950749664
 ```
 
 Graphql server: http://localhost:5001/graphql  
@@ -34,6 +38,12 @@ Blazor app: http://localhost:5000
 Client: Regenerate graphql schema
 ```bash
 dotnet graphql update
+```
+
+Client: Generate minified tailwind for deploy
+```bash
+cd Bookriofy
+npm run tailwind-build-prod
 ```
 
 Server: New migration
