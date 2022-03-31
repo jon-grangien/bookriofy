@@ -22,9 +22,9 @@ else
 
 <br />
 <p>Add book</p>
-<input @bind-value="@newBookTitle" />
-<input @bind-value="@newBookDesc" />
-<input @bind-value="@newBookAuthorId" />
+<input class="border-2 border-solid border-primary-2" @bind-value="@newBookTitle" />
+<input class="border-2 border-solid border-primary-2" @bind-value="@newBookDesc" />
+<input class="border-2 border-solid border-primary-2" @bind-value="@newBookAuthorId" />
 <button @onclick="OnAddBook">Add</button>
 
 @code {
