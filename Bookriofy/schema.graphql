@@ -52,6 +52,9 @@ type RenameBookPayload {
 input AddBookInput {
   title: String!
   description: String
+  isbn10: String
+  year: Int
+  imageLink: String
   authorId: ID!
 }
 

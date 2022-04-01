@@ -12,7 +12,7 @@ public class Mutation
 		return book;
 	}
 
-	public Book AddBook(string title, string? description, [ID] int authorId, BookriofyDbContext dbContext)
+	public Book AddBook(string title, string? description, string? isbn10, int? year, string? imageLink, [ID] int authorId, BookriofyDbContext dbContext)
 	{
 		var author = dbContext.Authors.FirstOrDefault(a => a.Id == authorId);
 		if (author == null)
@@ -20,7 +20,7 @@ public class Mutation
 			throw new Exception("Author not found");
 		}
 
-		var book = new Book() { Title = title, Description = description, Author = author };
+		var book = new Book() { Title = title, Description = description, Isbn10 = isbn10, PublishedYear = year, ImageLink = imageLink, Author = author };
 		dbContext.Books.Add(book);
 		dbContext.SaveChanges();
 		return book;

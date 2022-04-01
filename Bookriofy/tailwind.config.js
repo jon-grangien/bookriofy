@@ -13,10 +13,14 @@ module.exports = {
         'hero-1': "url('bailey-zindel-NRQV-hBF10M-unsplash.jpg')"
       },
       screens: {
+        'xs': '320px',
         '3xl': '1650px',
         '4xl': '1800px'
       }
     },
   },
-  plugins: [],
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/forms'),
+  ],
 }

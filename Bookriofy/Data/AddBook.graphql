@@ -1,7 +1,7 @@
-mutation AddBook($title: String!, $description: String, $authorId: ID!) {
-  addBook(input: {title: $title, description: $description, authorId: $authorId}) {
+mutation AddBook($title: String!, $description: String, $isbn10: String, $year: Int, $imageLink: String, $authorId: ID!) {
+  addBook(input: {title: $title, description: $description, isbn10: $isbn10, year: $year, imageLink: $imageLink, authorId: $authorId}) {
     book {
-		title
-	}
+      title
+    }
   }
 } 

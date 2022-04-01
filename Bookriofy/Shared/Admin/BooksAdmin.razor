@@ -1,0 +1,194 @@
+@inject BookriofyGraphqlClient BookriofyGraphqlClient;
+@implements IDisposable
+@using AutoMapper
+@using Bookriofy.Data
+@using Bookriofy.Shared.Components
+
+<div class="prose lg:prose-lg prose-stone">
+	<h3>Books</h3>
+</div>
+<div class="flex flex-row flex-wrap justify-between">
+	@if (books.Count == 0)
+	{
+		<p>Loading...</p>
+	}
+	else
+	{
+		<div class="prose lg:prose-lg prose-stone">
+			<table class="table-auto">
+				<thead>
+					<tr>
+						<th>Actions</th>
+						<th>Title</th>
+						<th>Author</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var book in books)
+					{
+						<tr>
+							<td>
+								<CustomButton Text="Edit" OnClickCallback="() => OnClickBook(book)" />
+							</td>
+							<td>@book.Title</td>
+							<td>@authors.FirstOrDefault(a => a.Id == book.AuthorId)?.Name</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+
+	<div class="flex flex-col prose w-80 xs:mt-14 md:mt-0">
+		<h3>Add book</h3>
+
+		<label>Title</label>
+		<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@newBookTitle" />
+
+		<label class="mt-2">Description</label>
+		<textarea class="block border-2 border-solid border-primary-2" @bind="@newBookDesc" @bind:event="oninput" />
+
+		<label class="mt-2">ISBN10</label>
+		<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@newBookIsbn10" />
+
+		<label class="mt-2">Year published</label>
+		<input type="number" class="block border-2 border-solid border-primary-2" @bind-value="@newBookYear" />
+
+		<label class="mt-2">Image link</label>
+		<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@newBookImageLink" />
+
+		<label class="mt-2">Author</label>
+		<select class="block border-2 border-solid border-primary-2" @bind="@newBookAuthorId">
+			@foreach (var author in authors)
+			{
+				<option value="@author.Id">@author.Name</option>
+			}
+		</select>
+		<CustomButton Text="Add" OnClickCallback="OnAddBook" FullWidth="true" CustomClassesString="mt-2" />
+	</div>
+</div>
+
+@code {
+	private List<Book> books = new List<Book>();
+	private List<Author> authors = new List<Author>();
+
+	private IDisposable storeAuthors;
+	private Book selectedBook;
+	private IDisposable storeBooks;
+	private IDisposable storeBooksRemoved;
+	private string title;
+	private string? newBookTitle;
+	private string? newBookDesc;
+	private string? newBookIsbn10;
+	private int? newBookYear;
+	private string? newBookImageLink;
+	private int? newBookAuthorId;
+
+	[Inject]
+	protected IMapper Mapper { get; set; }
+
+	protected override void OnInitialized()
+	{
+		FetchBooks();
+		FetchAuthors();
+		SubscribeToRemovedBook();
+	}
+
+	private void FetchBooks()
+	{
+		storeBooks = BookriofyGraphqlClient
+		.GetBooks
+		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
+		.Where(t => !t.Errors.Any())
+		.Select(t => t?.Data?.Books)
+		.Subscribe(result =>
+		{
+			if (result != null)
+			{
+				books = new List<Book>();
+				foreach (var r in result)
+				{
+					books.Add(Mapper.Map<Book>(r));
+				}
+			}
+			StateHasChanged();
+		});
+	}
+
+	private void FetchAuthors()
+	{
+		storeAuthors = BookriofyGraphqlClient
+		.GetAuthors
+		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
+		.Where(t => !t.Errors.Any())
+		.Select(t => t?.Data?.Authors)
+		.Subscribe(results =>
+		{
+			if (results != null)
+			{
+				authors = new List<Author>();
+				foreach (var result in results)
+				{
+					authors.Add(Mapper.Map<Author>(result));
+				}
+				authors.Sort((a, b) => a.Name.CompareTo(b.Name));
+			}
+			StateHasChanged();
+		});
+	}
+
+	private void SubscribeToRemovedBook()
+	{
+		storeBooksRemoved = BookriofyGraphqlClient
+		.OnBookRemoved
+		.Watch()
+		.Subscribe(result =>
+		{
+			if (result?.Data != null)
+			{
+				books = books.Where(b => b.Id != result?.Data.BookRemoved.Id).ToList();
+				StateHasChanged();
+			}
+		});
+	}
+
+	private void OnClickBook(Book book)
+	{
+		selectedBook = book;
+		title = book.Title;
+		StateHasChanged();
+	}
+
+	private async Task OnSaveTitle()
+	{
+		await BookriofyGraphqlClient.RenameBook.ExecuteAsync(selectedBook.Id.ToString(), title);
+		selectedBook = null;
+		title = null;
+		StateHasChanged();
+	}
+
+	private async Task OnAddBook()
+	{
+		if (newBookTitle is null || newBookDesc is null || newBookAuthorId is null)
+		{
+			return;
+		}
+
+		await BookriofyGraphqlClient.AddBook.ExecuteAsync(newBookTitle, newBookDesc, newBookIsbn10, newBookYear,
+		newBookImageLink, newBookAuthorId?.ToString());
+		newBookTitle = null;
+		newBookDesc = null;
+		newBookIsbn10 = null;
+		newBookYear = null;
+		newBookImageLink = null;
+		newBookAuthorId = null;
+		StateHasChanged();
+	}
+
+	public void Dispose()
+	{
+		storeBooks?.Dispose();
+		storeBooksRemoved?.Dispose();
+		storeAuthors?.Dispose();
+	}
+}

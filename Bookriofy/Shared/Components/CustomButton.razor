@@ -1,0 +1,27 @@
+<button @onclick="@OnClickCallback"
+	class="bg-bright border-solid border-2 border-primary-1 px-4 hover:bg-primary-1 hover:text-white @(FullWidth ? "w-full" : "") @CustomClassesString"
+	@onclick:preventDefault="@PreventDefault">
+	<span>@Text</span>
+</button>
+
+@code {
+	[Parameter]
+	public string Text { get; set; }
+
+	[Parameter]
+	public bool FullWidth { get; set; } = false;
+
+	[Parameter]
+	public EventCallback<MouseEventArgs> OnClickCallback { get; set; }
+
+	[Parameter]
+	public string? CustomClassesString { get; set; } = "";
+
+	private bool PreventDefault
+	{
+		get
+		{
+			return OnClickCallback.HasDelegate;
+		}
+	}
+}

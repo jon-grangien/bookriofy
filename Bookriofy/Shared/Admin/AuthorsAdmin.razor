@@ -1,0 +1,147 @@
+@inject BookriofyGraphqlClient BookriofyGraphqlClient;
+@implements IDisposable
+@using AutoMapper
+@using Bookriofy.Data
+@using Bookriofy.Shared.Components
+
+<div class="prose lg:prose-lg prose-stone">
+	<h3>Authors</h3>
+</div>
+<div class="flex flex-row flex-wrap justify-between">
+	@if (authors.Count == 0)
+	{
+		<p>Loading...</p>
+	}
+	else
+	{
+		<div class="prose lg:prose-lg prose-stone">
+			<table class="table-auto">
+				<thead>
+					<tr>
+						<th>Actions</th>
+						<th>Name</th>
+						<th>Bio</th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var author in authors)
+					{
+						<tr>
+							<td>
+								<CustomButton Text="Delete" OnClickCallback="() => OnClickDeleteAuthor(author)" />
+							</td>
+							<td>@author.Name</td>
+							<td>@author.Bio</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	}
+
+	<div class="flex flex-col prose w-80 xs:mt-14 md:mt-0">
+		<h3>Add author</h3>
+		<label>Name</label>
+		<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@newAuthorName" />
+		<label class="mt-2">Description</label>
+		<textarea class="block border-2 border-solid border-primary-2" @bind="@newAuthorBio" @bind:event="oninput" />
+		<CustomButton Text="Add" OnClickCallback="OnAddAuthor" FullWidth="true" CustomClassesString="mt-2" />
+	</div>
+</div>
+
+@code {
+	private List<Author> authors = new List<Author>();
+	private IDisposable? storeAuthors;
+	private IDisposable? storeAuthorAdded;
+	private IDisposable? storeAuthorRemoved;
+	private string? newAuthorName;
+	private string? newAuthorBio;
+
+	[Inject]
+	protected IMapper Mapper { get; set; } = default!;
+
+	protected override void OnInitialized()
+	{
+		FetchAuthors();
+		SubscribeToAddedAuthors();
+		SubscribeToRemovedAuthor();
+	}
+
+	private void FetchAuthors()
+	{
+		storeAuthors = BookriofyGraphqlClient
+		.GetAuthors
+		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
+		.Where(t => !t.Errors.Any())
+		.Select(t => t?.Data?.Authors)
+		.Subscribe(results =>
+		{
+			if (results != null)
+			{
+				authors = new List<Author>(Mapper.Map<Author[]>(results));
+				SortAuthors();
+			}
+			StateHasChanged();
+		});
+	}
+
+	private void SubscribeToAddedAuthors()
+	{
+		storeAuthorAdded = BookriofyGraphqlClient
+		.OnAuthorAdded
+		.Watch()
+		.Subscribe(result =>
+		{
+			if (result?.Data != null)
+			{
+				authors.Add(Mapper.Map<Author>(result.Data.AuthorAdded));
+				SortAuthors();
+				StateHasChanged();
+			}
+		});
+	}
+
+	private void SubscribeToRemovedAuthor()
+	{
+		storeAuthorRemoved = BookriofyGraphqlClient
+		.OnAuthorRemoved
+		.Watch()
+		.Subscribe(result =>
+		{
+			if (result?.Data != null)
+			{
+				authors = authors.Where(a => a.Id != result.Data.AuthorRemoved.Id).ToList();
+				SortAuthors();
+				StateHasChanged();
+			}
+		});
+	}
+
+	private async Task OnAddAuthor()
+	{
+		if (newAuthorName != null && newAuthorBio != null)
+		{
+			await BookriofyGraphqlClient.AddAuthor.ExecuteAsync(newAuthorName, newAuthorBio);
+			newAuthorName = null;
+			newAuthorBio = null;
+			StateHasChanged();
+		}
+	}
+
+	private void SortAuthors()
+	{
+		authors.Sort((a, b) => a.Name.CompareTo(b.Name));
+	}
+
+	private async void OnClickDeleteAuthor(Author author)
+	{
+		await BookriofyGraphqlClient.RemoveAuthor.ExecuteAsync(author.Id.ToString());
+	}
+
+	public void Dispose()
+	{
+		storeAuthors?.Dispose();
+		storeAuthorAdded?.Dispose();
+		storeAuthorRemoved?.Dispose();
+	}
+}
