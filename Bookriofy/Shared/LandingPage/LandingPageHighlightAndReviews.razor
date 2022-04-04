@@ -1,5 +1,4 @@
 @inject BookriofyGraphqlClient BookriofyGraphqlClient;
-@implements IDisposable
 @using AutoMapper
 @using Bookriofy.Data
 
@@ -7,12 +6,18 @@
 	class="flex flex-row md:flex-wrap lg:flex-nowrap items-center justify-between py-32 sm:w-full md:w-full lg:w-11/12 xl:w-10/12 2xl:w-9/12 3xl:w-8/12 4xl:w-7/12">
 	<div>
 		<div class="flex flex-row items-end sm:mx-0 px-14">
-			<div class="w-60 mr-24">
-				<img src="book_placeholder.png" alt="book" />
-			</div>
-			<div class="w-52">
-				<img src="book_placeholder.png" alt="book" />
-			</div>
+			@if (Books.Count > 0)
+			{
+				<div class="w-60 mr-24">
+					<img src="@Books[0].ImageLink" class="w-full" alt="book" />
+				</div>
+			}
+			@if (Books.Count > 1)
+			{
+				<div class="w-52">
+					<img src="@Books[1].ImageLink" class="w-full" alt="book" />
+				</div>
+			}
 		</div>
 		<LandingPagePhysicalShelf />
 	</div>
@@ -27,40 +32,6 @@
 </div>
 
 @code {
-	private List<Book> books = new List<Book>();
-	private IDisposable? storeBooks;
-
-	[Inject]
-	protected IMapper Mapper { get; set; } = default!;
-
-	protected override void OnInitialized()
-	{
-		FetchBooks();
-	}
-
-	private void FetchBooks()
-	{
-		storeBooks = BookriofyGraphqlClient
-		.GetBooks
-		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
-		.Where(t => !t.Errors.Any())
-		.Select(t => t?.Data?.Books)
-		.Subscribe(result =>
-		{
-			if (result != null)
-			{
-				books = new List<Book>();
-				foreach (var r in result)
-				{
-					books.Add(Mapper.Map<Book>(r));
-				}
-			}
-			StateHasChanged();
-		});
-	}
-
-	public void Dispose()
-	{
-		storeBooks?.Dispose();
-	}
+	[Parameter]
+	public List<Book> Books { get; set; } = new List<Book>();
 }

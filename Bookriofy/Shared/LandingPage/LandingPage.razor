@@ -1,3 +1,8 @@
+@inject BookriofyGraphqlClient BookriofyGraphqlClient;
+@implements IDisposable
+@using AutoMapper
+@using Bookriofy.Data
+
 <section class="w-full h-[50vw] min-h-[1000px] bg-hero-1 bg-no-repeat bg-cover bg-center">
 	<NavMenuSimple />
 	<div class="w-full flex justify-center">
@@ -17,13 +22,48 @@
 </section>
 
 <section class="w-full flex justify-center">
-	<LandingPageHighlightAndReviews />
+	<LandingPageHighlightAndReviews Books="@books" />
 </section>
 
-@* masonry *@
-<section class="w-full">
-
+<section class="w-full mt-14 flex justify-center">
+	<BooksMasonry Books="@books" />
 </section>
 
 @code {
+	private List<Book> books = new List<Book>();
+	private IDisposable? storeBooks;
+
+	[Inject]
+	protected IMapper Mapper { get; set; } = default!;
+
+	protected override void OnInitialized()
+	{
+		FetchBooks();
+	}
+
+	private void FetchBooks()
+	{
+		storeBooks = BookriofyGraphqlClient
+		.GetBooks
+		.Watch(StrawberryShake.ExecutionStrategy.CacheFirst)
+		.Where(t => !t.Errors.Any())
+		.Select(t => t?.Data?.Books)
+		.Subscribe(result =>
+		{
+			if (result != null)
+			{
+				books = new List<Book>();
+				foreach (var r in result)
+				{
+					books.Add(Mapper.Map<Book>(r));
+				}
+			}
+			StateHasChanged();
+		});
+	}
+
+	public void Dispose()
+	{
+		storeBooks?.Dispose();
+	}
 }

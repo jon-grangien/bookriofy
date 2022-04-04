@@ -1134,6 +1134,10 @@ select {
   --tw-prose-invert-td-borders: #44403c;
 }
 
+.m-auto {
+  margin: auto;
+}
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -1158,6 +1162,22 @@ select {
   margin-top: 0.5rem;
 }
 
+.mr-1 {
+  margin-right: 0.25rem;
+}
+
+.ml-1 {
+  margin-left: 0.25rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.mt-14 {
+  margin-top: 3.5rem;
+}
+
 .mr-24 {
   margin-right: 6rem;
 }
@@ -1170,14 +1190,6 @@ select {
   margin-left: 1rem;
 }
 
-.mr-1 {
-  margin-right: 0.25rem;
-}
-
-.ml-1 {
-  margin-left: 0.25rem;
-}
-
 .block {
   display: block;
 }
@@ -1188,6 +1200,10 @@ select {
 
 .table {
   display: table;
+}
+
+.h-40 {
+  height: 10rem;
 }
 
 .h-\[50vw\] {
@@ -1212,6 +1228,10 @@ select {
 
 .w-80 {
   width: 20rem;
+}
+
+.w-44 {
+  width: 11rem;
 }
 
 .w-60 {
@@ -1258,12 +1278,12 @@ select {
   justify-content: space-between;
 }
 
-.rounded-full {
-  border-radius: 9999px;
-}
-
 .rounded-lg {
   border-radius: 0.5rem;
+}
+
+.rounded-full {
+  border-radius: 9999px;
 }
 
 .border-2 {
@@ -1291,6 +1311,11 @@ select {
 .bg-bright {
   --tw-bg-opacity: 1;
   background-color: rgb(247 249 251 / var(--tw-bg-opacity));
+}
+
+.bg-primary-1 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(49 112 142 / var(--tw-bg-opacity));
 }
 
 .bg-primary-2 {
@@ -1371,6 +1396,10 @@ select {
   padding-bottom: 2.5rem;
 }
 
+.pb-20 {
+  padding-bottom: 5rem;
+}
+
 .text-5xl {
   font-size: 3rem;
   line-height: 1;
@@ -1389,6 +1418,13 @@ select {
 .drop-shadow-2xl {
   --tw-drop-shadow: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));
   filter: var(--tw-blur) var(--tw-brightness) var(--tw-contrast) var(--tw-grayscale) var(--tw-hue-rotate) var(--tw-invert) var(--tw-saturate) var(--tw-sepia) var(--tw-drop-shadow);
+}
+
+.masonry-sm {
+  -moz-column-gap: 1.5em;
+       column-gap: 1.5em;
+  -moz-column-count: 2;
+       column-count: 2;
 }
 
 .hover\:bg-primary-1:hover {
@@ -1423,6 +1459,13 @@ select {
 
   .md\:flex-wrap {
     flex-wrap: wrap;
+  }
+
+  .md\:masonry-md {
+    -moz-column-gap: 1.5em;
+         column-gap: 1.5em;
+    -moz-column-count: 3;
+         column-count: 3;
   }
 }
 
@@ -1648,6 +1691,13 @@ select {
   .lg\:px-14 {
     padding-left: 3.5rem;
     padding-right: 3.5rem;
+  }
+
+  .lg\:masonry-lg {
+    -moz-column-gap: 1.5em;
+         column-gap: 1.5em;
+    -moz-column-count: 4;
+         column-count: 4;
   }
 }
 

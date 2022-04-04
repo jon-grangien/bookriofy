@@ -1,0 +1,15 @@
+@using Bookriofy.Data
+
+<div class="m-auto masonry-sm md:masonry-md lg:masonry-lg">
+	@foreach (var book in Books)
+	{
+		<div class="mb-6 w-44">
+			<img src="@book.ImageLink" alt="book" class="w-full rounded-lg " />
+		</div>
+	}
+</div>
+
+@code {
+	[Parameter]
+	public List<Book> Books { get; set; } = new List<Book>();
+}
