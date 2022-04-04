@@ -1,0 +1,7 @@
+mutation EditBook($bookId: ID!, $title: String!, $desc: String!, $isbn10: String, $year: Int, $imageLink: String) {
+  editBook(input: {id: $bookId, title: $title, desc: $desc, isbn10: $isbn10, year: $year, imageLink: $imageLink}) {
+    book {
+      title
+    }
+  }
+} 

@@ -12,6 +12,31 @@ public class Mutation
 		return book;
 	}
 
+	public Book? EditBook([ID] int id, string title, string desc, string? isbn10, int? year, string? imageLink, BookriofyDbContext dbContext)
+	{
+		try
+		{
+			var book = dbContext.Books.FirstOrDefault(b => b.Id == id);
+			if (book == null)
+			{
+				throw new Exception("Book not found");
+			}
+
+			book.Title = title;
+			book.Description = desc;
+			book.Isbn10 = isbn10;
+			book.PublishedYear = year;
+			book.ImageLink = imageLink;
+			dbContext.SaveChanges();
+			return book;
+		}
+		catch (Exception e)
+		{
+			Console.WriteLine(e);
+			return null;
+		}
+	}
+
 	public Book AddBook(string title, string? description, string? isbn10, int? year, string? imageLink, [ID] int authorId, BookriofyDbContext dbContext)
 	{
 		var author = dbContext.Authors.FirstOrDefault(a => a.Id == authorId);

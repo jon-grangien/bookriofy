@@ -39,32 +39,61 @@
 		</div>
 	}
 
+
 	<div class="flex flex-col prose w-80 xs:mt-14 md:mt-0">
-		<h3>Add book</h3>
+		@if (selectedBook == null)
+		{
+			<h3>Add book</h3>
 
-		<label>Title</label>
-		<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@newBookTitle" />
+			<label>Title</label>
+			<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@newBookTitle" />
 
-		<label class="mt-2">Description</label>
-		<textarea class="block border-2 border-solid border-primary-2" @bind="@newBookDesc" @bind:event="oninput" />
+			<label class="mt-2">Description</label>
+			<textarea class="block border-2 border-solid border-primary-2" @bind="@newBookDesc" @bind:event="oninput" />
 
-		<label class="mt-2">ISBN10</label>
-		<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@newBookIsbn10" />
+			<label class="mt-2">ISBN10</label>
+			<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@newBookIsbn10" />
 
-		<label class="mt-2">Year published</label>
-		<input type="number" class="block border-2 border-solid border-primary-2" @bind-value="@newBookYear" />
+			<label class="mt-2">Year published</label>
+			<input type="number" class="block border-2 border-solid border-primary-2" @bind-value="@newBookYear" />
 
-		<label class="mt-2">Image link</label>
-		<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@newBookImageLink" />
+			<label class="mt-2">Image link</label>
+			<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@newBookImageLink" />
 
-		<label class="mt-2">Author</label>
-		<select class="block border-2 border-solid border-primary-2" @bind="@newBookAuthorId">
-			@foreach (var author in authors)
-			{
-				<option value="@author.Id">@author.Name</option>
-			}
-		</select>
-		<CustomButton Text="Add" OnClickCallback="OnAddBook" FullWidth="true" CustomClassesString="mt-2" />
+			<label class="mt-2">Author</label>
+			<select class="block border-2 border-solid border-primary-2" @bind="@newBookAuthorId">
+				@foreach (var author in authors)
+				{
+					<option value="@author.Id">@author.Name</option>
+				}
+			</select>
+			<CustomButton Text="Add" OnClickCallback="OnAddBook" FullWidth="true" CustomClassesString="mt-2" />
+		}
+		else
+		{
+			<h3>Edit "@titleToEdit"</h3>
+
+			<label>Title</label>
+			<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@titleToEdit" />
+
+			<label class="mt-2">Description</label>
+			<textarea class="block border-2 border-solid border-primary-2" @bind="@descToEdit" @bind:event="oninput" />
+
+			<label class="mt-2">ISBN10</label>
+			<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@isbn10ToEdit" />
+
+			<label class="mt-2">Year published</label>
+			<input type="number" class="block border-2 border-solid border-primary-2" @bind-value="@yearToEdit" />
+
+			<label class="mt-2">Image link</label>
+			<input type="text" class="block border-2 border-solid border-primary-2" @bind-value="@imageLinkToEdit" />
+
+			<div class="w-full mt-2 flex flex-row">
+				<CustomButton Text="Cancel" OnClickCallback="OnClickCancelEdit" FullWidth="true"
+				CustomClassesString="mr-1" />
+				<CustomButton Text="Save" OnClickCallback="OnClickEditBook" FullWidth="true" CustomClassesString="ml-1" />
+			</div>
+		}
 	</div>
 </div>
 
@@ -76,7 +105,11 @@
 	private Book selectedBook;
 	private IDisposable storeBooks;
 	private IDisposable storeBooksRemoved;
-	private string title;
+	private string? titleToEdit;
+	private string? descToEdit;
+	private string? isbn10ToEdit;
+	private int? yearToEdit;
+	private string? imageLinkToEdit;
 	private string? newBookTitle;
 	private string? newBookDesc;
 	private string? newBookIsbn10;
@@ -85,7 +118,7 @@
 	private int? newBookAuthorId;
 
 	[Inject]
-	protected IMapper Mapper { get; set; }
+	protected IMapper mapper { get; set; }
 
 	protected override void OnInitialized()
 	{
@@ -108,7 +141,7 @@
 				books = new List<Book>();
 				foreach (var r in result)
 				{
-					books.Add(Mapper.Map<Book>(r));
+					books.Add(mapper.Map<Book>(r));
 				}
 			}
 			StateHasChanged();
@@ -129,7 +162,7 @@
 				authors = new List<Author>();
 				foreach (var result in results)
 				{
-					authors.Add(Mapper.Map<Author>(result));
+					authors.Add(mapper.Map<Author>(result));
 				}
 				authors.Sort((a, b) => a.Name.CompareTo(b.Name));
 			}
@@ -154,17 +187,43 @@
 
 	private void OnClickBook(Book book)
 	{
+		Console.WriteLine("Clicked book: " + book.Title);
 		selectedBook = book;
-		title = book.Title;
+		titleToEdit = book.Title;
+		descToEdit = book.Description;
+		isbn10ToEdit = book.Isbn10;
+		yearToEdit = book.PublishedYear;
+		imageLinkToEdit = book.ImageLink;
 		StateHasChanged();
 	}
 
-	private async Task OnSaveTitle()
+	private async Task OnClickEditBook()
 	{
-		await BookriofyGraphqlClient.RenameBook.ExecuteAsync(selectedBook.Id.ToString(), title);
-		selectedBook = null;
-		title = null;
+		if (titleToEdit == null || descToEdit == null)
+		{
+			return;
+		}
+
+		await BookriofyGraphqlClient.EditBook.ExecuteAsync(selectedBook.Id.ToString(), titleToEdit, descToEdit, isbn10ToEdit,
+		yearToEdit, imageLinkToEdit);
+		ClearEditBookVariables();
 		StateHasChanged();
+	}
+
+	private void OnClickCancelEdit()
+	{
+		ClearEditBookVariables();
+		StateHasChanged();
+	}
+
+	private void ClearEditBookVariables()
+	{
+		selectedBook = null;
+		titleToEdit = null;
+		descToEdit = null;
+		isbn10ToEdit = null;
+		yearToEdit = null;
+		imageLinkToEdit = null;
 	}
 
 	private async Task OnAddBook()

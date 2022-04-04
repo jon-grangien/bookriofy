@@ -8,6 +8,8 @@ namespace Bookriofy.Data
 
 		public string? ImageLink { get; set; }
 
+		public string? Isbn10 { get; set; }
+
 		public int? PublishedYear { get; set; }
 		public int AuthorId { get; set; }
 	}

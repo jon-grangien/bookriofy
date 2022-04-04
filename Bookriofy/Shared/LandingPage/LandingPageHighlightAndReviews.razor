@@ -58,4 +58,9 @@
 			StateHasChanged();
 		});
 	}
+
+	public void Dispose()
+	{
+		storeBooks?.Dispose();
+	}
 }

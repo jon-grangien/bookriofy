@@ -6,6 +6,7 @@
 
 type Mutation {
   renameBook(input: RenameBookInput!): RenameBookPayload!
+  editBook(input: EditBookInput!): EditBookPayload!
   addBook(input: AddBookInput!): AddBookPayload!
   addAuthor(input: AddAuthorInput!): AddAuthorPayload!
   removeAuthor(input: RemoveAuthorInput!): RemoveAuthorPayload!
@@ -46,6 +47,19 @@ input RenameBookInput {
 }
 
 type RenameBookPayload {
+  book: Book
+}
+
+input EditBookInput {
+  id: ID!
+  title: String!
+  desc: String!
+  isbn10: String
+  year: Int
+  imageLink: String
+}
+
+type EditBookPayload {
   book: Book
 }
 
